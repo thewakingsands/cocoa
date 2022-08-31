@@ -6,7 +6,8 @@
     "strict": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true
   },
-  "include": ["./src"]
+  "include": ["./src", "./tools"]
 }
