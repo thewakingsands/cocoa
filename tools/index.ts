@@ -4,6 +4,7 @@ import { checkDatamining, getPatchData, getSaintCoinachDefinitions } from './pre
 
 import Redis from 'ioredis'
 import { config } from '../src/config/redis'
+import { populate } from './step/populate'
 
 const force = process.argv.includes('-f')
 console.log('force', force)
@@ -18,6 +19,7 @@ void (async () => {
 
   try {
     await initialScan(redis, force)
+    await populate(redis, true)
   } finally {
     await redis.quit()
   }
