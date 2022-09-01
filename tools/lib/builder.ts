@@ -1,12 +1,6 @@
-import { ZERO_CONTENT } from "./constant";
 import { getRealColumnName } from "./helper";
 import { Data, Definition } from "./interface";
-
-export interface Link {
-  key: string,
-  target: string,
-  id: string
-}
+import { isLinkInvalid, Link } from "./link";
 
 export function buildContent(definition: Definition, data: Record<string, any>): {
   links: Link[],
@@ -14,12 +8,6 @@ export function buildContent(definition: Definition, data: Record<string, any>):
 } {
   const sheet = definition.sheet
   const links: Link[] = []
-
-  const isLinkInvalid = (linkTarget: string, linkId: string | null) => {
-    return linkId === null
-      || (linkId === '0' && !ZERO_CONTENT.includes(linkTarget))
-      || (sheet === linkTarget && data.ID === linkId)
-  }
 
   const handle = (rule: Data, suffix = '') => {
     if (rule.type === 'group') {
@@ -49,19 +37,12 @@ export function buildContent(definition: Definition, data: Record<string, any>):
 
       // handle link type definition
       if (converter.type === 'link') {
-        const linkId: string | null = data[key] ?? null;
-        const linkTarget = converter.target;
-
         // Notice: link type will set params even if target is invalid. So skip link target checking
-        // if (isLinkInvalid(linkTarget, linkId)) {
-        //   return
-        // }
-
-        // save connection
         links.push({
           key,
-          target: linkTarget,
-          id: linkId!
+          target: converter.target,
+          id: data[key] ?? null,
+          force: true
         })
       }
 
@@ -74,16 +55,18 @@ export function buildContent(definition: Definition, data: Record<string, any>):
 
         const linkId = data[key] ?? null;
         for (const linkTarget of converter.targets) {
-          if (isLinkInvalid(linkTarget, linkId)) {
+          const link = {
+            key,
+            target: linkTarget,
+            id: linkId,
+          }
+
+          if (isLinkInvalid(sheet, data.ID, link)) {
             continue
           }
 
           // Here we link all possible targets. The links will be filtered later.
-          links.push({
-            key,
-            target: linkTarget,
-            id: linkId
-          })
+          links.push(link)
         }
       }
 
@@ -114,7 +97,8 @@ export function buildContent(definition: Definition, data: Record<string, any>):
           links.push({
             key,
             target: link.sheet!,
-            id: linkId
+            id: linkId,
+            force: true
           })
         }
       }

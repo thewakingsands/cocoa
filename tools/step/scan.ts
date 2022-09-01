@@ -1,18 +1,18 @@
 import { MultiBar, Presets } from 'cli-progress'
 import { readJson } from 'fs-extra'
-import { dataPath } from './lib/path'
-import { config } from '../src/config/redis'
+import { dataPath } from '../lib/path'
 import Redis from 'ioredis'
-import { Definition } from './lib/interface'
-import { readSheet } from './lib/sheet'
-import { ZERO_CONTENT } from './lib/constant'
-import { buildContent } from './lib/builder'
+import { Definition } from '../lib/interface'
+import { readSheet } from '../lib/sheet'
+import { ZERO_CONTENT } from '../lib/constant'
+import { buildContent } from '../lib/builder'
+import { keys } from '../lib/key'
 
 async function readDefinition(name: string): Promise<Definition> {
   return readJson(dataPath(`definitions/${name}.json`))
 }
 
-export async function buildDataToRedis(force = false) {
+export async function initialScan(redis: Redis, force = false) {
   const definitionList: string[] = await readJson(dataPath('definitions/_list.json'))
 
   // init progress bar
@@ -22,29 +22,35 @@ export async function buildDataToRedis(force = false) {
     format: '[{bar}] {percentage}% | {duration}s | {value}/{total} | {label}'
   }, Presets.shades_grey)
 
-  const definitionBar = multibar.create(definitionList.length * 2, 0, {
+  const definitionBar = multibar.create(definitionList.length, 0, {
     label: 'Initial Scan (Total)'
   })
 
-  // init redis
-  const redis = new Redis(config)
+  let pipeline = redis.pipeline()
+  const flush = async () => {
+    if (pipeline.length === 0) return
+    await pipeline.exec()
+
+    pipeline = redis.pipeline()
+  }
 
   // start building
   for (const definitionName of definitionList) {
     definitionBar.increment()
 
-    const listKey = `meta.${definitionName}.list`
-    const finishKey = `meta.${definitionName}.scanned`
+    const listKey = keys.list(definitionName)
+    const finishKey = keys.scanned(definitionName)
     if (!force && await redis.get(finishKey)) {
       continue
     }
 
-    const definition = await readDefinition(definitionName)
     const bar = multibar.create(0, 0, {
-      label: `Scan ${definitionName}`
+      label: `Scanning ${definitionName}`
     })
 
-    await redis.del(listKey)
+    const definition = await readDefinition(definitionName)
+
+    pipeline.del(listKey)
 
     try {
       for (const { total, current, row } of readSheet(definition.sheet)) {
@@ -63,17 +69,23 @@ export async function buildDataToRedis(force = false) {
 
         const { links, data } = buildContent(definition, row)
 
-        await redis.pipeline()
+        pipeline
           .lpush(listKey, id)
-          .set(`data.${definitionName}.${id}`, JSON.stringify(data))
-          .set(`meta.${definitionName}.direct.${id}`, JSON.stringify(links))
-          .exec()
+          .set(keys.data(definitionName, id), JSON.stringify(data))
+          .set(keys.tempDirectLink(definitionName, id), JSON.stringify(links))
+
+        if (pipeline.length > 500) {
+          await flush()
+        }
       }
     } catch (e: any) {
-      multibar.log(`${e.name as string}[${definitionName}]: ${e.message as string}`)
+      multibar.log(`${e.name as string}[${definitionName}]: ${e.message as string}\n`)
     }
 
-    await redis.set(finishKey, '1')
+    pipeline.set(finishKey, '1')
     multibar.remove(bar)
   }
+
+  await flush()
+  multibar.stop()
 }
