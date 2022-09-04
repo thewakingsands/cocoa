@@ -79,3 +79,28 @@ export const COLUMN_NAMES: Record<string, Record<string, string>> = {
     'Singular': 'Name'
   }
 };
+
+export const ELASTICSEARCH_LIST = [
+  'Achievement', 'Title',
+  'Action', 'CraftAction', 'Trait', 'PvPAction', 'PvPTrait', 'Status',
+  'BNpcName', 'ENpcResident',
+  'Companion', 'Mount',
+  'Leve',
+  'Emote',
+  'InstanceContent',
+  'Item', 'Recipe',
+  'Fate',
+  'Quest',
+  'ContentFinderCondition',
+
+  // non default
+  'Balloon',
+  'BuddyEquip',
+  'Orchestrion',
+  'PlaceName',
+  'Weather',
+  'World',
+  'Map',
+]
+
+export const clearCommand = "local keys = redis.call('keys', ARGV[1]) \n for i=1,#keys,5000 do \n redis.call('del', unpack(keys, i, math.min(i+4999, #keys))) \n end \n return keys"

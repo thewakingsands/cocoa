@@ -93,6 +93,9 @@ export function* readSheet(name: string) {
         }
       } else if (type === 'str') {
         obj[`${key}_${MAIN_LANGUAGE}`] = formatString(value)
+      } else if (key === 'ID') {
+        // convert to number if do not has dot
+        obj[key] = value.includes('.') ? value : +value
       } else if (!isNaN(+value)) {
         // convert to number if possible
         obj[key] = +value

@@ -7,24 +7,19 @@ import { readSheet } from '../lib/sheet'
 import { ZERO_CONTENT } from '../lib/constant'
 import { buildContent } from '../lib/builder'
 import { keys } from '../lib/key'
+import { iterateDefinitions } from '../lib/iterator'
 
 async function readDefinition(name: string): Promise<Definition> {
   return readJson(dataPath(`definitions/${name}.json`))
 }
 
 export async function initialScan(redis: Redis, force = false) {
-  const definitionList: string[] = await readJson(dataPath('definitions/_list.json'))
-
   // init progress bar
   const multibar = new MultiBar({
     clearOnComplete: false,
     hideCursor: true,
     format: '[{bar}] {percentage}% | {duration}s | {value}/{total} | {label}'
   }, Presets.shades_grey)
-
-  const definitionBar = multibar.create(definitionList.length, 0, {
-    label: 'Initial Scan (Total)'
-  })
 
   let pipeline = redis.pipeline()
   const flush = async () => {
@@ -35,20 +30,18 @@ export async function initialScan(redis: Redis, force = false) {
   }
 
   // start building
-  for (const definitionName of definitionList) {
-    definitionBar.increment()
-
-    const listKey = keys.list(definitionName)
-    const finishKey = keys.scanned(definitionName)
+  await iterateDefinitions(multibar, 'Initial Scan (Total)', async (name) => {
+    const listKey = keys.list(name)
+    const finishKey = keys.scanned(name)
     if (!force && await redis.get(finishKey)) {
-      continue
+      return
     }
 
     const bar = multibar.create(0, 0, {
-      label: `Scanning ${definitionName}`
+      label: `Scanning ${name}`
     })
 
-    const definition = await readDefinition(definitionName)
+    const definition = await readDefinition(name)
 
     pipeline.del(listKey)
 
@@ -63,7 +56,7 @@ export async function initialScan(redis: Redis, force = false) {
 
         const id: string = row.ID
         // skip 'zero' row if not specified
-        if (id === '0' && !ZERO_CONTENT.includes(definitionName)) {
+        if (id === '0' && !ZERO_CONTENT.includes(name)) {
           continue
         }
 
@@ -71,20 +64,20 @@ export async function initialScan(redis: Redis, force = false) {
 
         pipeline
           .lpush(listKey, id)
-          .set(keys.data(definitionName, id), JSON.stringify(data))
-          .set(keys.tempDirectLink(definitionName, id), JSON.stringify(links))
+          .set(keys.data(name, id), JSON.stringify(data))
+          .set(keys.tempDirectLink(name, id), JSON.stringify(links))
 
         if (pipeline.length > 500) {
           await flush()
         }
       }
     } catch (e: any) {
-      multibar.log(`${e.name as string}[${definitionName}]: ${e.message as string}\n`)
+      multibar.log(`${e.name as string}[${name}]: ${e.message as string}\n`)
     }
 
     pipeline.set(finishKey, '1')
     multibar.remove(bar)
-  }
+  })
 
   await flush()
   multibar.stop()
