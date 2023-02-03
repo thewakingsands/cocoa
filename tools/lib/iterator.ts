@@ -3,7 +3,7 @@ import { readJson } from 'fs-extra'
 import { dataPath } from '../lib/path'
 
 const listCache = Symbol('def-list')
-async function loadDefinitionList(): Promise<string[]> {
+export async function loadDefinitionList(): Promise<string[]> {
   const cached = (global as any)[listCache]
   if (cached) {
     return cached

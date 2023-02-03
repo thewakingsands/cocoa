@@ -19,7 +19,7 @@ void (async () => {
 
   try {
     await initialScan(redis, force)
-    await populate(redis, true)
+    await populate(redis, force)
   } finally {
     await redis.quit()
   }

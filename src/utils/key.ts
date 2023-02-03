@@ -1,5 +1,7 @@
 export const keys = {
+  definitions: 'const.definitions',
   list: (def: string) => `meta.${def}.list`,
+  stat: (def: string) => `meta.${def}.stat`,
   scanned: (def: string) => `meta.${def}.scanned`,
   populated: (def: string) => `meta.${def}.populated`,
   data: (def: string, id: string | number) => `data.${def}.${id}`,

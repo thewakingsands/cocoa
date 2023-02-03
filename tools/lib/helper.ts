@@ -39,3 +39,11 @@ export function getSimpleColumnName(columns: string) {
 export function getReplacedName(filename: string, column: string) {
   return COLUMN_NAMES[filename]?.[column] ?? column
 }
+
+export function handleID(id: string | number) {
+  if (typeof id === 'number' || id.includes('.')) {
+    return id
+  }
+
+  return +id
+}

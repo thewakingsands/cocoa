@@ -1,6 +1,6 @@
 import { parse } from 'csv-parse/sync'
 import { readFileSync, readJsonSync } from 'fs-extra';
-import { getImagePath, getRealColumnNames } from './helper';
+import { getImagePath, getRealColumnNames, handleID } from './helper';
 import { FOREIGN_REMOVALS, LANGUAGES, MAIN_LANGUAGE } from './constant';
 import { dataPath } from './path';
 
@@ -46,9 +46,11 @@ export function* readSheet(name: string) {
   const columns = getRealColumnNames(name, mainSheet[rowIndexes.name])
   const types = mainSheet[rowIndexes.type]
 
+  const stringIndexes = types.map((type, i) => type === 'str' ? i : -1).filter(i => i >= 0)
+  const stringColumns = columns.filter((_, i) => stringIndexes.includes(i))
+
   // load sub sheets if required
   if (loadSubLanguages) {
-    const stringIndexes = types.map((type, i) => type === 'str' ? i : -1).filter(i => i >= 0)
     for (const lang of subLanguages) {
       const sheet = readCsv(name, lang)
 
@@ -92,10 +94,11 @@ export function* readSheet(name: string) {
           obj[`${key}HD`] = getImagePath(value, true)
         }
       } else if (type === 'str') {
-        obj[`${key}_${MAIN_LANGUAGE}`] = formatString(value)
+        const str = formatString(value)
+        obj[key] = str
+        obj[`${key}_${MAIN_LANGUAGE}`] = str
       } else if (key === 'ID') {
-        // convert to number if do not has dot
-        obj[key] = value.includes('.') ? value : +value
+        obj[key] = handleID(value)
       } else if (!isNaN(+value)) {
         // convert to number if possible
         obj[key] = +value
@@ -114,6 +117,7 @@ export function* readSheet(name: string) {
     }
 
     yield {
+      stringColumns,
       total: mainSheet.length - rowIndexes.start,
       current: i - rowIndexes.start,
       row: obj

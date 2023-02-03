@@ -2,8 +2,9 @@ import { MultiBar, Presets } from 'cli-progress'
 import Redis from 'ioredis'
 import LRUCache from 'lru-cache'
 import { isLinkInvalid, Link, ResolvedLink } from '../lib/link'
-import { keys } from '../lib/key'
+import { keys } from '../../src/utils/key'
 import { iterateDefinitions } from '../lib/iterator'
+import { handleID } from '../lib/helper'
 
 export async function populate(redis: Redis, force = false) {
   // init progress bar
@@ -190,7 +191,7 @@ export async function populate(redis: Redis, force = false) {
 
         result[link.target] ??= {}
         result[link.target][link.key] ??= []
-        result[link.target][link.key].push(link.id)
+        result[link.target][link.key].push(handleID(link.id))
       }
 
       pipeline
