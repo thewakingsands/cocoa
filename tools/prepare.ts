@@ -1,6 +1,6 @@
 import { basename, join } from 'path'
 import { writeFile, ensureDir, remove } from 'fs-extra'
-import { githubDirectory } from './lib/github'
+import { githubDirectory, githubClone } from './lib/github'
 import { existsSync } from 'fs'
 import { dataPath } from './lib/path'
 
@@ -18,7 +18,7 @@ async function prepareDataDir(dir: string, clear = true) {
 export async function getSaintCoinachDefinitions() {
   const root = await prepareDataDir('definitions')
   const contents: string[] = []
-  for await (const { path, buffer } of githubDirectory('xivapi/SaintCoinach', 'master', 'SaintCoinach/Definitions/')) {
+  for await (const { path, buffer } of githubClone('xivapi/SaintCoinach', 'master', 'SaintCoinach/Definitions/')) {
     if (path.endsWith('.json')) {
       const contentName = basename(path, '.json')
       contents.push(contentName)
@@ -47,12 +47,7 @@ export async function getPatchData() {
 
 export async function checkDatamining() {
   const root = await prepareDataDir('datamining', false)
-  const testFiles = [
-    'World.csv',
-    'Item.chs.csv',
-    'Item.en.csv',
-    'Item.ja.csv'
-  ]
+  const testFiles = ['World.csv', 'Item.chs.csv', 'Item.en.csv', 'Item.ja.csv']
 
   for (const file of testFiles) {
     const testPath = join(root, file)

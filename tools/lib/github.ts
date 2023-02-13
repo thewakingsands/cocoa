@@ -1,7 +1,9 @@
 import { unzip } from './unzip'
 import fetch from 'node-fetch'
-import { join } from 'path'
-import { existsSync, readFileSync } from 'fs'
+import { join, relative } from 'path'
+import { existsSync, readFile, readFileSync } from 'fs-extra'
+import { ResetMode, simpleGit } from 'simple-git'
+import klaw from 'klaw'
 
 export async function* githubZip(slug: string, ref = 'master') {
   const res = await fetch(`https://api.github.com/repos/${slug}/zipball/${ref}`)
@@ -13,12 +15,54 @@ export async function* githubZip(slug: string, ref = 'master') {
   }
 }
 
+export async function* githubClone(slug: string, ref = 'master', prefix?: string) {
+  const cwd = join(__dirname, '../archive')
+  const dir = slug.replace('/', '_')
+  const repo = join(cwd, dir)
+
+  if (existsSync(repo)) {
+    const git = simpleGit(repo)
+    await git.reset(ResetMode.HARD)
+    await git.checkout(ref)
+    await git.pull()
+  } else if (prefix) {
+    await simpleGit().clone(`https://github.com/${slug}.git`, repo, [
+      '--single-branch',
+      '-b',
+      ref,
+      '--depth=1',
+      '--filter=blob:none',
+      '--sparse',
+    ])
+
+    const git = simpleGit(repo, {
+      spawnOptions: {},
+    })
+    await git.raw(['sparse-checkout', 'init', '--cone'])
+    await git.raw(['sparse-checkout', 'add', prefix])
+  } else {
+    await simpleGit().clone(`https://github.com/${slug}.git`, repo, ['--single-branch', '-b', ref, '--depth=1'])
+  }
+
+  const root = prefix ? join(repo, prefix) : repo
+  for await (const file of klaw(root)) {
+    const relativePath = relative(root, file.path)
+    console.log(relativePath)
+    if (relativePath.startsWith('.git')) continue
+
+    yield {
+      path: relativePath,
+      buffer: async () => readFile(file.path),
+    }
+  }
+}
+
 export interface GitTreeItem {
-  path: string,
-  mode: string,
-  type: 'blob' | 'tree',
-  size?: number,
-  sha: string,
+  path: string
+  mode: string
+  type: 'blob' | 'tree'
+  size?: number
+  sha: string
   url: string
 }
 
@@ -64,8 +108,8 @@ export async function* githubDirectory(slug: string, ref = 'master', prefix?: st
       buffer: async () => {
         console.log(`Fetching ${item.path}`)
         const res = await fetch(item.url)
-        return res.buffer();
+        return res.buffer()
       },
-    };
+    }
   }
 }

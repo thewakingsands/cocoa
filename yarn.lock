@@ -350,6 +350,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kwsites/file-exists@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@kwsites/file-exists@npm:1.1.1"
+  dependencies:
+    debug: ^4.1.1
+  checksum: 4ff945de7293285133aeae759caddc71e73c4a44a12fac710fdd4f574cce2671a3f89d8165fdb03d383cfc97f3f96f677d8de3c95133da3d0e12a123a23109fe
+  languageName: node
+  linkType: hard
+
+"@kwsites/promise-deferred@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@kwsites/promise-deferred@npm:1.1.1"
+  checksum: 07455477a0123d9a38afb503739eeff2c5424afa8d3dbdcc7f9502f13604488a4b1d9742fc7288832a52a6422cf1e1c0a1d51f69a39052f14d27c9a0420b6629
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -668,6 +684,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: e009a2bfb50e90ca9b7c6e8f648f8464067271fd99116f881073fa6fa76dc8d0133181dd65e6614d5fb1220d671d67b0124aef7d97dc02d7e342ab143a47779d
+  languageName: node
+  linkType: hard
+
+"@types/klaw@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "@types/klaw@npm:3.0.3"
+  dependencies:
+    "@types/node": "*"
+  checksum: 6d321b6a3b56eb25e08b6670f16486afa9128b759f6a3866f987fb6908f851057e9b53a29068daa9ff3828e13f7dda32fc5c1b7ef990b958c50ab88b04877f22
   languageName: node
   linkType: hard
 
@@ -1370,6 +1395,7 @@ __metadata:
     "@types/cron": ^1
     "@types/fs-extra": ^9.0.13
     "@types/jsonwebtoken": ^8
+    "@types/klaw": ^3.0.3
     "@types/node": 16
     "@types/node-fetch": 2
     "@types/prettier": ^2
@@ -1393,6 +1419,7 @@ __metadata:
     fastify-cors: ^6.0.3
     fs-extra: ^10.1.0
     ioredis: ^5.2.3
+    klaw: ^4.1.0
     lru-cache: ^7.14.0
     node-fetch: 2
     node-html-parser: ^5.3.3
@@ -1400,6 +1427,7 @@ __metadata:
     p-defer: 3
     prettier: ^2.6.2
     reflect-metadata: ^0.1.13
+    simple-git: ^3.16.0
     source-map-support: ^0.5.21
     tslib: ^2.4.0
     typedi: ^0.10.0
@@ -3196,6 +3224,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"klaw@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "klaw@npm:4.1.0"
+  checksum: 23fcdd8b837f7d51f0a62bebc4e5f83ee8338083597f33f97ae6aed3305c53220c8bf9f1a81024c11658b2e71022868f3b2ba4c39298af4eaacd38ef1e3a878e
+  languageName: node
+  linkType: hard
+
 "latest-version@npm:^5.1.0":
   version: 5.1.0
   resolution: "latest-version@npm:5.1.0"
@@ -4415,6 +4450,17 @@ __metadata:
   version: 3.0.7
   resolution: "signal-exit@npm:3.0.7"
   checksum: a2f098f247adc367dffc27845853e9959b9e88b01cb301658cfe4194352d8d2bb32e18467c786a7fe15f1d44b233ea35633d076d5e737870b7139949d1ab6318
+  languageName: node
+  linkType: hard
+
+"simple-git@npm:^3.16.0":
+  version: 3.16.0
+  resolution: "simple-git@npm:3.16.0"
+  dependencies:
+    "@kwsites/file-exists": ^1.1.1
+    "@kwsites/promise-deferred": ^1.1.1
+    debug: ^4.3.4
+  checksum: fd28eb43be39d158d2c321cd34eb00f61c365513478ff2bb31f4da06315dcd018e03c6ece9f99558f3fd8834171072850aed1376bf50f8d922b0e2dadede0c2d
   languageName: node
   linkType: hard
 
