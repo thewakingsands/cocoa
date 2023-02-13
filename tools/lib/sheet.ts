@@ -1,18 +1,18 @@
 import { parse } from 'csv-parse/sync'
-import { readFileSync, readJsonSync } from 'fs-extra';
-import { getImagePath, getRealColumnNames, handleID } from './helper';
-import { FOREIGN_REMOVALS, LANGUAGES, MAIN_LANGUAGE } from './constant';
-import { dataPath } from './path';
+import { readFileSync, readJsonSync } from 'fs-extra'
+import { getImagePath, getRealColumnNames, handleID } from './helper'
+import { FOREIGN_REMOVALS, LANGUAGES, MAIN_LANGUAGE } from './constant'
+import { dataPath } from './path'
 
-const removalRegex = new RegExp(FOREIGN_REMOVALS.join('|'), 'g');
+const removalRegex = new RegExp(FOREIGN_REMOVALS.join('|'), 'g')
 
-const subLanguages = LANGUAGES.filter(item => item !== MAIN_LANGUAGE)
+const subLanguages = LANGUAGES.filter((item) => item !== MAIN_LANGUAGE)
 
 function readCsv(filename: string, lang = ''): string[][] {
   const input = readFileSync(dataPath(`datamining/${filename}${lang ? '.' : ''}${lang}.csv`), 'utf-8')
 
   return parse(input, {
-    skip_empty_lines: true
+    skip_empty_lines: true,
   })
 }
 
@@ -33,7 +33,9 @@ export function* readSheet(name: string) {
   let patchData: Record<string, number> = {}
   try {
     patchData = readJsonSync(dataPath(`patches/${name}.json`))
-  } catch (e) { /* noop */ }
+  } catch (e) {
+    /* noop */
+  }
 
   // load main sheet
   try {
@@ -46,7 +48,7 @@ export function* readSheet(name: string) {
   const columns = getRealColumnNames(name, mainSheet[rowIndexes.name])
   const types = mainSheet[rowIndexes.type]
 
-  const stringIndexes = types.map((type, i) => type === 'str' ? i : -1).filter(i => i >= 0)
+  const stringIndexes = types.map((type, i) => (type === 'str' ? i : -1)).filter((i) => i >= 0)
   const stringColumns = columns.filter((_, i) => stringIndexes.includes(i))
 
   // load sub sheets if required
@@ -68,6 +70,8 @@ export function* readSheet(name: string) {
       }
     }
   }
+
+  let sortedColumns: string[] | null = null
 
   // processing
   for (let i = rowIndexes.start; i < mainSheet.length; ++i) {
@@ -116,11 +120,23 @@ export function* readSheet(name: string) {
       obj.Patch = patch
     }
 
+    obj.Url = `/${name}/${obj.ID as number}`
+
+    // make sure objects are alphabet ordered
+    const sortedObj: Record<string, any> = {}
+    if (!sortedColumns) {
+      sortedColumns = Object.keys(obj).sort()
+    }
+
+    for (const key of sortedColumns) {
+      sortedObj[key] = obj[key]
+    }
+
     yield {
       stringColumns,
       total: mainSheet.length - rowIndexes.start,
       current: i - rowIndexes.start,
-      row: obj
+      row: obj,
     }
   }
 }
