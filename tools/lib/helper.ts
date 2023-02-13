@@ -1,5 +1,4 @@
-import { COLUMN_NAMES } from "./constant";
-
+import { COLUMN_NAMES } from './constant'
 
 /**
  * Gets the real path to an image
@@ -8,7 +7,7 @@ export function getImagePath(number: string, hd = false) {
   if (!number || number === '0') return null
 
   const icon = number.toString().padStart(6, '0')
-  return `/i/${icon.substring(0, 3)}/${icon}${hd ? '_hr1' : ''}.png`
+  return `/i/${icon.substring(0, 3)}000/${icon}${hd ? '_hr1' : ''}.png`
 }
 
 /**
@@ -19,18 +18,18 @@ export function getRealColumnNames(filename: string, columns: string[]) {
     // switch # to ID
     columns[0] === '#' ? 'ID' : columns[0],
     // switch some column names
-    ...columns.slice(1).map(item => getReplacedName(filename, getSimpleColumnName(item)))
-  ];
+    ...columns.slice(1).map((item) => getReplacedName(filename, getSimpleColumnName(item))),
+  ]
 }
 export function getRealColumnName(filename: string, column: string) {
-  return getReplacedName(filename, getSimpleColumnName(column));
+  return getReplacedName(filename, getSimpleColumnName(column))
 }
 
 /**
  * Get a simplified column name
  */
 export function getSimpleColumnName(columns: string) {
-  return columns.replace(/(?:^|[[\]{}<>() ])([a-z]?)/g, (_, chr: string) => chr ? chr.toUpperCase() : '')
+  return columns.replace(/(?:^|[[\]{}<>() ])([a-z]?)/g, (_, chr: string) => (chr ? chr.toUpperCase() : ''))
 }
 
 /**
