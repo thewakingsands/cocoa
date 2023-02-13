@@ -76,9 +76,9 @@ export async function initialScan(redis: Redis, force = false) {
 
         bar.increment()
 
-        const id: string = row.ID
+        const id: number = +row.ID
         // skip 'zero' row if not specified
-        if (id === '0' && !ZERO_CONTENT.includes(name)) {
+        if (id === 0 && !ZERO_CONTENT.includes(name)) {
           continue
         }
 
@@ -90,7 +90,7 @@ export async function initialScan(redis: Redis, force = false) {
 
         ++count
         pipeline
-          .lpush(listKey, id)
+          .rpush(listKey, id)
           .set(keys.data(name, id), JSON.stringify(data))
           .set(keys.tempDirectLink(name, id), JSON.stringify(links))
 
