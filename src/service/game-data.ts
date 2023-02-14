@@ -2,6 +2,7 @@ import { FastifyRequest } from 'fastify'
 import { Service } from 'typedi'
 import { NotFoundError } from '../utils/error'
 import { keys } from '../utils/key'
+import { DataItemService } from './data-item'
 import { DataListService } from './data-list'
 import { RedisService } from './redis'
 
@@ -10,7 +11,11 @@ export class GameDataService {
   private definitions: Set<string>
   private lookup: Map<string, string>
 
-  public constructor(public redis: RedisService, public listService: DataListService) {
+  public constructor(
+    public redis: RedisService,
+    private listService: DataListService,
+    private itemService: DataItemService,
+  ) {
     const lookup = new Map<string, string>()
     this.lookup = lookup
     this.definitions = new Set()
@@ -46,5 +51,14 @@ export class GameDataService {
     }
 
     return await this.listService.handler(def, request)
+  }
+
+  public async one(key: string, id: string, request: FastifyRequest<any>) {
+    const def = this.normalize(key)
+    if (!def) {
+      throw new NotFoundError(`Definition '${key}' not found`)
+    }
+
+    return await this.itemService.handler(def, id, request)
   }
 }
