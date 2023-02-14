@@ -136,7 +136,7 @@ export function* readSheet(name: string) {
       stringColumns,
       total: mainSheet.length - rowIndexes.start,
       current: i - rowIndexes.start,
-      row: obj,
+      row: sortedObj,
     }
   }
 }
