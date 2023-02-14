@@ -10,7 +10,7 @@
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -p tsconfig.json -w",
     "dev": "nodemon --ext .ts --watch src dev.js",
-    "start": "node dist",
+    "start": "node dist/src",
     "lint": "eslint .",
     "ts-node": "node -r @swc-node/register -r reflect-metadata -r dotenv/config"
   },
