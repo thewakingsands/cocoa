@@ -26,12 +26,12 @@
   },
   "homepage": "https://github.com/thewakingsands/cocoa#readme",
   "dependencies": {
+    "@fastify/cors": "^8.2.0",
     "bunyan": "^1.8.15",
     "bunyan-debug-stream": "^3.1.0",
     "cron": "^2.2.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.14.1",
-    "fastify-cors": "^6.1.0",
     "ioredis": "^5.3.1",
     "lru-cache": "^7.18.3",
     "node-fetch": "2",

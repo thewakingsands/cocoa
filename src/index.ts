@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import 'dotenv/config'
 
-import fastifyCors from 'fastify-cors'
+import fastifyCors from '@fastify/cors'
 import fastify from 'fastify'
 import { createLogger } from './utils/createLogger'
 import GameData from './api/game-data'
