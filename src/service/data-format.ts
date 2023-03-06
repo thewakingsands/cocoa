@@ -15,6 +15,7 @@ interface MainLanguageParams {
 interface FormatParams {
   enabled: boolean
   columns?: string[]
+  populate?: string[]
   language?: MainLanguageParams
 }
 
@@ -31,9 +32,11 @@ export class DataFormatService {
 
     const [columns, hasPrimaryStrings] = this.request.columns(request, stat.strings, defaultAllColumns)
     const language = hasPrimaryStrings && this.request.language(request)
+    const populate = this.getPopulate(columns, stat)
 
     return {
       enabled: columns !== undefined || !!language,
+      populate,
       columns,
       language: language
         ? {
@@ -62,6 +65,28 @@ export class DataFormatService {
     }
 
     return row
+  }
+
+  private getPopulate(columns: string[] | undefined, stat: Stat): string[] | undefined {
+    if (columns === undefined) {
+      return stat.externals
+    }
+
+    const picked = new Set<string>()
+    for (const item of columns) {
+      const pos = item.indexOf('.')
+      const key = pos === -1 ? item : item.slice(0, pos)
+
+      if (stat.externals.includes(key)) {
+        picked.add(key)
+      }
+    }
+
+    if (picked.size) {
+      return Array.from(picked)
+    } else {
+      return undefined
+    }
   }
 
   /**
