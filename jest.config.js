@@ -5,6 +5,7 @@ const config = {
   transform: {
     '^.+\\.(t|j)sx?$': '@swc/jest',
   },
+  testPathIgnorePatterns: ['/fixtures/'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   verbose: true,
 }
