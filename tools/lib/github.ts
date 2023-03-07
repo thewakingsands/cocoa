@@ -47,7 +47,6 @@ export async function* githubClone(slug: string, ref = 'master', prefix?: string
   const root = prefix ? join(repo, prefix) : repo
   for await (const file of klaw(root)) {
     const relativePath = relative(root, file.path)
-    console.log(relativePath)
     if (relativePath.startsWith('.git')) continue
 
     yield {
