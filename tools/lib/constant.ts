@@ -1,7 +1,11 @@
 export const FOREIGN_REMOVALS = [
-  '<Emphasis>', '</Emphasis>', '<Emphasis/>',
-  '<Indent>', '</Indent>', '<Indent/>',
-  '<SoftHyphen/>'
+  '<Emphasis>',
+  '</Emphasis>',
+  '<Emphasis/>',
+  '<Indent>',
+  '</Indent>',
+  '<Indent/>',
+  '<SoftHyphen/>',
 ]
 
 export const LANGUAGES = ['chs', 'de', 'en', 'fr', 'ja']
@@ -16,79 +20,89 @@ export const ZERO_CONTENT = [
   'World',
   'RecipeNotebookList',
   'SpearFishingNotebook',
-  'RetainerTaskParameter'
-];
+  'RetainerTaskParameter',
+]
 
 /**
  * Convert some columns into a more standard approach,
  * this is mainly for names.
  */
 export const COLUMN_NAMES: Record<string, Record<string, string>> = {
-  'Aetheryte': {
-    'Singular': 'Name'
+  Aetheryte: {
+    Singular: 'Name',
   },
-  'BNpcName': {
-    'Singular': 'Name'
+  BNpcName: {
+    Singular: 'Name',
   },
-  'ENpcResident': {
-    'Singular': 'Name'
+  ENpcResident: {
+    Singular: 'Name',
   },
-  'Mount': {
-    'Singular': 'Name'
+  Mount: {
+    Singular: 'Name',
   },
-  'Companion': {
-    'Singular': 'Name'
+  Companion: {
+    Singular: 'Name',
   },
-  'Title': {
-    'Masculine': 'Name',
-    'Feminine': 'NameFemale'
+  Title: {
+    Masculine: 'Name',
+    Feminine: 'NameFemale',
   },
-  'Race': {
-    'Masculine': 'Name',
-    'Feminine': 'NameFemale'
+  Race: {
+    Masculine: 'Name',
+    Feminine: 'NameFemale',
   },
-  'Tribe': {
-    'Masculine': 'Name',
-    'Feminine': 'NameFemale'
+  Tribe: {
+    Masculine: 'Name',
+    Feminine: 'NameFemale',
   },
-  'Quest': {
-    'Id': 'TextFile',
+  Quest: {
+    Id: 'TextFile',
   },
-  'EurekaAetherItem': {
-    'Singular': 'Name'
+  EurekaAetherItem: {
+    Singular: 'Name',
   },
-  'GCRankGridaniaFemaleText': {
-    'Singular': 'Name'
+  GCRankGridaniaFemaleText: {
+    Singular: 'Name',
   },
-  'GCRankGridaniaMaleText': {
-    'Singular': 'Name'
+  GCRankGridaniaMaleText: {
+    Singular: 'Name',
   },
-  'GCRankLimsaFemaleText': {
-    'Singular': 'Name'
+  GCRankLimsaFemaleText: {
+    Singular: 'Name',
   },
-  'GCRankLimsaMaleText': {
-    'Singular': 'Name'
+  GCRankLimsaMaleText: {
+    Singular: 'Name',
   },
-  'GCRankUldahFemaleText': {
-    'Singular': 'Name'
+  GCRankUldahFemaleText: {
+    Singular: 'Name',
   },
-  'GCRankUldahMaleText': {
-    'Singular': 'Name'
+  GCRankUldahMaleText: {
+    Singular: 'Name',
   },
-  'Ornament': {
-    'Singular': 'Name'
-  }
-};
+  Ornament: {
+    Singular: 'Name',
+  },
+}
+
 
 export const ELASTICSEARCH_LIST = [
-  'Achievement', 'Title',
-  'Action', 'CraftAction', 'Trait', 'PvPAction', 'PvPTrait', 'Status',
-  'BNpcName', 'ENpcResident',
-  'Companion', 'Mount',
+  'Achievement',
+  'Title',
+  'Action',
+  'CraftAction',
+  'Trait',
+  'PvPAction',
+  'PvPTrait',
+  'Status',
+  'BNpcName',
+  'ENpcResident',
+  'Companion',
+  'Mount',
   'Leve',
   'Emote',
   'InstanceContent',
-  'Item', 'Recipe',
+  'Item',
+  'Recipe',
   'Fate',
   'Quest',
   'ContentFinderCondition',
@@ -103,4 +117,5 @@ export const ELASTICSEARCH_LIST = [
   'Map',
 ]
 
-export const clearCommand = "local keys = redis.call('keys', ARGV[1]) \n for i=1,#keys,5000 do \n redis.call('del', unpack(keys, i, math.min(i+4999, #keys))) \n end \n return keys"
+export const clearCommand =
+  "local keys = redis.call('keys', ARGV[1]) \n for i=1,#keys,5000 do \n redis.call('del', unpack(keys, i, math.min(i+4999, #keys))) \n end \n return keys"
