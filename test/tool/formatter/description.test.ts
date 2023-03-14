@@ -77,4 +77,24 @@ describe('test/tool/description.test.ts', () => {
       '的获得数增加2个',
     ])
   })
+
+  it('should format simple if condition', () => {
+    expect(
+      formatDescriptionLogic(
+        'Eine Bescheinigung, die dich einst als Helfer<If(PlayerParameter(4))>in<Else/></If> der Drei Singdrosseln auswies und zur Stimmabgabe berechtigte.',
+      ),
+    ).toEqual([
+      'Eine Bescheinigung, die dich einst als Helfer',
+      {
+        condition: {
+          left: 'is_woman',
+          operator: '==',
+          right: 'true',
+        },
+        false: '',
+        true: ['in'],
+      },
+      ' der Drei Singdrosseln auswies und zur Stimmabgabe berechtigte.',
+    ])
+  })
 })

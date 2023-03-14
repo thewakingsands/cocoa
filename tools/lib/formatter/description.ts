@@ -116,19 +116,33 @@ export function formatDescriptionLogic(input: string) {
     }
   }
 
-  const pushCondition = (arg: string) => {
+  const parseCondition = (arg: string) => {
     // GreaterThanOrEqualTo(PlayerParameter(68),16)
-    const match = /(\w+)\((\w+)\((\d+)\),(\d+)\)/.exec(arg)
-    if (!match) {
-      throw new Error(`Failed parsing if condition: (${arg})`)
-    }
-
-    const condition = {
-      condition: {
+    let match = /^(\w+)\((\w+)\((\d+)\),(\d+)\)$/.exec(arg)
+    if (match) {
+      return {
         left: PLAYER_PARAMETER[match[3]],
         operator: DESCRIPTION_COMPARE_FUNCTION[match[1]],
         right: +match[4],
-      },
+      }
+    }
+
+    // PlayerParameter(4)
+    match = /^(\w+)\((\d+)\)$/.exec(arg)
+    if (match) {
+      return {
+        left: PLAYER_PARAMETER[match[2]],
+        operator: '==',
+        right: 'true',
+      }
+    }
+
+    throw new Error(`Failed parsing if condition: (${arg})`)
+  }
+
+  const pushCondition = (arg: string) => {
+    const condition = {
+      condition: parseCondition(arg),
       true: [],
       false: [],
     }
@@ -226,15 +240,19 @@ export function formatRowDescription(row: Record<string, any>, ruleTrue: string 
     const source = row[`Description${suffix}`]
     if (typeof source === 'undefined') continue
 
-    const logic = formatDescriptionLogic(source)
-    row[`DescriptionJSON${suffix}`] = logic
+    try {
+      const logic = formatDescriptionLogic(source)
+      row[`DescriptionJSON${suffix}`] = logic
 
-    if (ruleTrue !== null) {
-      row[`Description${ruleTrue}${suffix}`] = formatDescription(logic, true)
-    }
+      if (ruleTrue !== null) {
+        row[`Description${ruleTrue}${suffix}`] = formatDescription(logic, true)
+      }
 
-    if (ruleFalse !== null) {
-      row[`Description${ruleFalse}${suffix}`] = formatDescription(logic, false)
+      if (ruleFalse !== null) {
+        row[`Description${ruleFalse}${suffix}`] = formatDescription(logic, false)
+      }
+    } catch (e) {
+      throw new Error(`Error at [ID:${row.ID as string}] Description${suffix}`, { cause: e })
     }
   }
 }
