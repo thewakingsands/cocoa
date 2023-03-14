@@ -1,11 +1,11 @@
 import { DESCRIPTION_COMPARE_FUNCTION, PLAYER_PARAMETER } from './constant'
-import { readSheet } from './sheet'
+import { simpleReadSheet } from './sheet'
 
 let colors: Record<number, string> | null = null
 
 function initColors() {
   colors = {}
-  for (const { row } of readSheet('UIColor')) {
+  for (const row of simpleReadSheet('UIColor')) {
     // This is weird but seems correct
     const int = row.UIGlow
     // const int = row.UIForeground

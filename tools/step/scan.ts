@@ -68,7 +68,7 @@ export async function initialScan(redis: Redis, force = false) {
     let count = 0
 
     try {
-      for (const { stringColumns, total, current, row } of readSheet(definition.sheet)) {
+      for await (const { stringColumns, total, current, row } of readSheet(definition.sheet)) {
         // set total at first record
         if (current === 0) {
           bar.setTotal(total)

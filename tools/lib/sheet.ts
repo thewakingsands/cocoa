@@ -8,7 +8,7 @@ const removalRegex = new RegExp(FOREIGN_REMOVALS.join('|'), 'g')
 
 const subLanguages = LANGUAGES.filter((item) => item !== MAIN_LANGUAGE)
 
-function readCsv(filename: string, lang = ''): string[][] {
+function readCsvSync(filename: string, lang = ''): string[][] {
   const input = readFileSync(dataPath(`datamining/${filename}${lang ? '.' : ''}${lang}.csv`), 'utf-8')
 
   return parse(input, {
@@ -26,7 +26,22 @@ const rowIndexes = {
   start: 3,
 }
 
-export function* readSheet(name: string) {
+export function* simpleReadSheet(name: string) {
+  const mainSheet = readCsvSync(name)
+  const columns = getRealColumnNames(name, mainSheet[rowIndexes.name])
+  for (let i = rowIndexes.start; i < mainSheet.length; ++i) {
+    const array = mainSheet[i]
+    const obj: Record<string, any> = {}
+
+    for (let j = 0; j < array.length; ++j) {
+      obj[columns[j]] = array[j]
+    }
+
+    yield obj
+  }
+}
+
+export async function* readSheet(name: string) {
   let loadSubLanguages = true
   let mainSheet: string[][]
   const extended: Map<string, Record<string, string>> = new Map()
@@ -39,10 +54,10 @@ export function* readSheet(name: string) {
 
   // load main sheet
   try {
-    mainSheet = readCsv(name, MAIN_LANGUAGE)
+    mainSheet = readCsvSync(name, MAIN_LANGUAGE)
   } catch (e) {
     loadSubLanguages = false
-    mainSheet = readCsv(name)
+    mainSheet = readCsvSync(name)
   }
 
   const columns = getRealColumnNames(name, mainSheet[rowIndexes.name])
@@ -54,7 +69,7 @@ export function* readSheet(name: string) {
   // load sub sheets if required
   if (loadSubLanguages) {
     for (const lang of subLanguages) {
-      const sheet = readCsv(name, lang)
+      const sheet = readCsvSync(name, lang)
 
       for (let i = rowIndexes.start; i < sheet.length; ++i) {
         const id = sheet[i][0]
