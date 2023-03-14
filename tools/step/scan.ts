@@ -3,7 +3,7 @@ import { readJson } from 'fs-extra'
 import { dataPath } from '../lib/path'
 import Redis from 'ioredis'
 import { Definition } from '../lib/interface'
-import { readSheet } from '../lib/sheet'
+import { getSheet } from '../lib/sheet'
 import { ZERO_CONTENT } from '../lib/constant'
 import { buildContent } from '../lib/builder'
 import { keys } from '../../src/utils/key'
@@ -68,10 +68,11 @@ export async function initialScan(redis: Redis, force = false) {
     let count = 0
 
     try {
-      for await (const { stringColumns, total, current, row } of readSheet(definition.sheet)) {
+      const sheet = await getSheet(definition.sheet)
+      for await (const { stringColumns, total, current, row } of sheet.iterator()) {
         // set total at first record
         if (current === 0) {
-          bar.setTotal(total)
+          bar.setTotal(total!)
         }
 
         bar.increment()

@@ -1,5 +1,5 @@
-import { DESCRIPTION_COMPARE_FUNCTION, PLAYER_PARAMETER } from './constant'
-import { simpleReadSheet } from './sheet'
+import { DESCRIPTION_COMPARE_FUNCTION, LANGUAGES, PLAYER_PARAMETER } from '../constant'
+import { simpleReadSheet } from '../sheet'
 
 let colors: Record<number, string> | null = null
 
@@ -218,4 +218,23 @@ export function formatDescription(input: string | Array<string | number | Condit
   }
 
   return result.join('')
+}
+
+const suffixes = ['', ...LANGUAGES.map((i) => `_${i}`)]
+export function formatRowDescription(row: Record<string, any>, ruleTrue: string | null, ruleFalse: string | null) {
+  for (const suffix of suffixes) {
+    const source = row[`Description${suffix}`]
+    if (typeof source === 'undefined') continue
+
+    const logic = formatDescriptionLogic(source)
+    row[`DescriptionJSON${suffix}`] = logic
+
+    if (ruleTrue !== null) {
+      row[`Description${ruleTrue}${suffix}`] = formatDescription(logic, true)
+    }
+
+    if (ruleFalse !== null) {
+      row[`Description${ruleFalse}${suffix}`] = formatDescription(logic, false)
+    }
+  }
 }

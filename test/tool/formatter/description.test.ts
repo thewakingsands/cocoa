@@ -1,5 +1,5 @@
 /* eslint-disable no-irregular-whitespace */
-import { formatDescription, formatDescriptionLogic } from '../../tools/lib/description'
+import { formatDescription, formatDescriptionLogic } from '../../../tools/lib/formatter/description'
 
 const case9 = `对目标发动物理攻击　<UIForeground>F201F8</UIForeground><UIGlow>F201F9</UIGlow>威力：<UIGlow>01</UIGlow><UIForeground>01</UIForeground><If(Equal(PlayerParameter(68),19))><If(GreaterThanOrEqualTo(PlayerParameter(72),84))>200<Else/>150</If><Else/>150</If>`
 const case291 = `感知自己附近能够进行采集的最高级矿脉及石场，导向地图上也会显示出来

@@ -4,7 +4,7 @@ import { COLUMN_NAMES } from './constant'
  * Gets the real path to an image
  */
 export function getImagePath(number: string, hd = false) {
-  if (!number || number === '0') return null
+  if (!number || number === '0') return ''
 
   const icon = number.toString().padStart(6, '0')
   return `/i/${icon.substring(0, 3)}000/${icon}${hd ? '_hr1' : ''}.png`

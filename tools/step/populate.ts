@@ -8,17 +8,20 @@ import { handleID } from '../lib/helper'
 
 export async function populate(redis: Redis, force = false) {
   // init progress bar
-  const multibar = new MultiBar({
-    clearOnComplete: false,
-    hideCursor: true,
-    format: '[{bar}] {percentage}% | {duration}s | {value}/{total} | {label}'
-  }, Presets.shades_grey)
+  const multibar = new MultiBar(
+    {
+      clearOnComplete: false,
+      hideCursor: true,
+      format: '[{bar}] {percentage}% | {duration}s | {value}/{total} | {label}',
+    },
+    Presets.shades_grey,
+  )
 
   // id list & link list
   const idListMap: Map<string, Set<string>> = new Map()
   const linkCache: LRUCache<string, Link[] | null> = new LRUCache({
     maxSize: 128 * 1024 * 1024,
-    sizeCalculation: (a) => JSON.stringify(a).length
+    sizeCalculation: (a) => JSON.stringify(a).length,
   })
 
   const getLink = async (def: string, id: string | number): Promise<Link[] | null> => {
@@ -34,7 +37,9 @@ export async function populate(redis: Redis, force = false) {
         const data = JSON.parse(text)
         linkCache.set(key, data)
         return data
-      } catch (e) { /* noop */ }
+      } catch (e) {
+        /* noop */
+      }
     }
 
     linkCache.set(key, null)
@@ -66,14 +71,14 @@ export async function populate(redis: Redis, force = false) {
       const isRoot = depth === 0
       for (const link of links) {
         const linkPath = [...path, link.key]
-        const valid = !isLinkInvalid(def, id, link) && await populateLink(linkPath, resolved, link.target, link.id!)
+        const valid = !isLinkInvalid(def, id, link) && (await populateLink(linkPath, resolved, link.target, link.id!))
 
         if (valid || link.force) {
           resolved.push({
             path: linkPath,
             target: link.target,
             id: link.id,
-            null: !valid
+            null: !valid,
           })
         }
 
@@ -95,11 +100,15 @@ export async function populate(redis: Redis, force = false) {
 
   async function iterateGameData(
     title: string,
-    { handler, pre, post }: {
-      handler: (def: string, id: string) => Promise<void>,
-      pre?: (def: string) => Promise<boolean>,
-      post?: (def: string) => Promise<void>,
-    }
+    {
+      handler,
+      pre,
+      post,
+    }: {
+      handler: (def: string, id: string) => Promise<void>
+      pre?: (def: string) => Promise<boolean>
+      post?: (def: string) => Promise<void>
+    },
   ) {
     await iterateDefinitions(multibar, title, async (name) => {
       if (pre && (await pre(name)) === false) {
@@ -113,7 +122,7 @@ export async function populate(redis: Redis, force = false) {
       }
 
       const bar = multibar.create(ids.size, 0, {
-        label: `=> ${name}`
+        label: `=> ${name}`,
       })
 
       try {
@@ -146,14 +155,14 @@ export async function populate(redis: Redis, force = false) {
       if (pipeline.length > 500) {
         await flush()
       }
-    }
+    },
   })
 
   // populating
   await iterateGameData('Populating', {
     async pre(name) {
       const finishKey = keys.populated(name)
-      if (!force && await redis.get(finishKey)) {
+      if (!force && (await redis.get(finishKey))) {
         return false
       }
 
@@ -163,8 +172,7 @@ export async function populate(redis: Redis, force = false) {
       const resolved: ResolvedLink[] = []
       await populateLink([], resolved, name, id)
 
-      pipeline
-        .set(keys.fullLink(name, id), JSON.stringify(resolved))
+      pipeline.set(keys.fullLink(name, id), JSON.stringify(resolved))
 
       if (pipeline.length > 500) {
         await flush()
@@ -194,14 +202,12 @@ export async function populate(redis: Redis, force = false) {
         result[link.target][link.key].push(handleID(link.id))
       }
 
-      pipeline
-        .set(keys.reverseLink(name, id), JSON.stringify(result))
-        .del(tmpKey)
+      pipeline.set(keys.reverseLink(name, id), JSON.stringify(result)).del(tmpKey)
 
       if (pipeline.length > 500) {
         await flush()
       }
-    }
+    },
   })
 
   await flush()

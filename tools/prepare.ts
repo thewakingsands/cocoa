@@ -30,6 +30,16 @@ export async function getSaintCoinachDefinitions() {
   await writeFile(join(root, '_list.json'), JSON.stringify(contents, null, 2))
 }
 
+export async function getXivapiCom() {
+  const root = await prepareDataDir('xivapi')
+  for await (const { path, buffer } of githubClone('xivapi/xivapi.com', 'master', 'src/Service/GamePatch/resources/')) {
+    if (path.endsWith('.json')) {
+      const name = basename(path, '.json')
+      await writeFile(join(root, `${name}.json`), await buffer())
+    }
+  }
+}
+
 export async function getPatchData() {
   const root = await prepareDataDir('patches')
   const contents: string[] = []

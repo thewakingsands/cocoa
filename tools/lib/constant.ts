@@ -84,6 +84,68 @@ export const COLUMN_NAMES: Record<string, Record<string, string>> = {
   },
 }
 
+export const TRANSIENT_TABLES = [
+  // needs offsets
+  // 'ActionComboRoute',
+
+  // no data yet?
+  // 'FishingRecordType',
+
+  'Action',
+  // 'Addon',
+  // 'BgcArmyAction',
+  'Companion',
+  'ContentFinderCondition',
+  'DpsChallenge',
+  'Mount',
+  // 'PartyContent',
+  'Perform',
+  // 'PvPRank',
+  // 'PvPSelectTrait',
+  'QuickChat',
+  'Stain',
+  'TerritoryType',
+  'Trait',
+]
+
+export const DESCRIPTION_JSON = {
+  Action: { false: null, true: '' },
+  Trait: { false: null, true: '' },
+  CraftAction: { false: null, true: '' },
+  Item: { false: null, true: '' },
+  TripleTriadCard: { false: 'Male', true: '' },
+}
+
+/** Needs a GamePatchID */
+export const TRACKED_CONTENT = [
+  'Achievement',
+  'Action',
+  'Addon',
+  'Balloon',
+  'ClassJob',
+  'Companion',
+  'CompanyAction',
+  'CraftAction',
+  'Emote',
+  'Fate',
+  'InstanceContent',
+  'Item',
+  'Leve',
+  'Mount',
+  'ENpcResident',
+  'BNpcName',
+  'Orchestrion',
+  'Pet',
+  'PlaceName',
+  'Quest',
+  'Recipe',
+  'SpecialShop',
+  'Status',
+  'Title',
+  'Trait',
+  'Weather',
+  'TripleTriadCard',
+]
 
 export const ELASTICSEARCH_LIST = [
   'Achievement',
