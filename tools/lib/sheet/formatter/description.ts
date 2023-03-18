@@ -1,16 +1,18 @@
-import { DESCRIPTION_COMPARE_FUNCTION, LANGUAGES, PLAYER_PARAMETER } from '../constant'
-import { simpleReadSheet } from '../sheet'
+import { DESCRIPTION_COMPARE_FUNCTION, DESCRIPTION_JSON, LANGUAGES, PLAYER_PARAMETER } from '../../common/constant'
+import { Row } from '../../interface'
+import { simpleReadSheet } from '../reader/simple'
+import { SheetFormatterFactory } from './interface'
 
-let colors: Record<number, string> | null = null
+let colors: Record<string, string> | null = null
 
 function initColors() {
   colors = {}
-  for (const row of simpleReadSheet('UIColor')) {
+  for (const { row } of simpleReadSheet('UIColor')) {
     // This is weird but seems correct
-    const int = row.UIGlow
+    const int = row.UIGlow as string
     // const int = row.UIForeground
 
-    colors[row.ID] = parseInt(int).toString(16).padStart(8, '0').slice(0, 6)
+    colors[row.ID as string] = parseInt(int).toString(16).padStart(8, '0').slice(0, 6)
   }
 }
 /**
@@ -41,7 +43,7 @@ interface Condition {
   condition: {
     left: string
     operator: string
-    right: number
+    right: number | string
   }
   false: '' | Array<string | number | Condition>
   true: '' | Array<string | number | Condition>
@@ -235,13 +237,13 @@ export function formatDescription(input: string | Array<string | number | Condit
 }
 
 const suffixes = ['', ...LANGUAGES.map((i) => `_${i}`)]
-export function formatRowDescription(row: Record<string, any>, ruleTrue: string | null, ruleFalse: string | null) {
+export function formatRowDescription(row: Row, ruleTrue: string | null, ruleFalse: string | null) {
   for (const suffix of suffixes) {
     const source = row[`Description${suffix}`]
     if (typeof source === 'undefined') continue
 
     try {
-      const logic = formatDescriptionLogic(source)
+      const logic = formatDescriptionLogic(source as string)
       row[`DescriptionJSON${suffix}`] = logic
 
       if (ruleTrue !== null) {
@@ -255,4 +257,15 @@ export function formatRowDescription(row: Record<string, any>, ruleTrue: string 
       throw new Error(`Error at [ID:${row.ID as string}] Description${suffix}`, { cause: e })
     }
   }
+}
+
+export const descriptionFormatter: SheetFormatterFactory = (def) => {
+  const descRules = DESCRIPTION_JSON[def as keyof typeof DESCRIPTION_JSON]
+  if (descRules) {
+    return (row) => {
+      formatRowDescription(row, descRules.true, descRules.false)
+    }
+  }
+
+  return null
 }

@@ -1,14 +1,13 @@
-import { readJsonSync } from 'fs-extra'
-import { FOREIGN_REMOVALS, MAIN_LANGUAGE } from '../constant'
-import { getImagePath, handleID } from '../helper'
-import { dataPath } from '../path'
+import { FOREIGN_REMOVALS, MAIN_LANGUAGE } from '../../common/constant'
+import { getImagePath, handleID } from '../../helper'
+import { Row } from '../../interface'
 
 const removalRegex = new RegExp(FOREIGN_REMOVALS.join('|'), 'g')
 function formatString(str: string) {
   return str.replace(/\r/g, '\n').replace(removalRegex, '')
 }
 
-export function applySheetColumn(obj: Record<string, any>, column: string, type: string, value: string) {
+export function applySheetColumn(obj: Row, column: string, type: string, value: string) {
   if (!column) return
 
   const upperValue = value.toUpperCase()
@@ -38,7 +37,7 @@ export function applySheetColumn(obj: Record<string, any>, column: string, type:
 }
 
 export function formatSheetRow(row: string[], columns: string[], types: string[]) {
-  const obj: Record<string, any> = {}
+  const obj: Row = {}
 
   for (let j = 0; j < row.length; ++j) {
     applySheetColumn(obj, columns[j], types[j], row[j])
@@ -47,8 +46,8 @@ export function formatSheetRow(row: string[], columns: string[], types: string[]
   return obj
 }
 
-export function sortObject(obj: Record<string, any>) {
-  const sortedObj: Record<string, any> = {}
+export function sortObject(obj: Row) {
+  const sortedObj: Row = {}
   const sortedColumns = Object.keys(obj).sort()
 
   for (const key of sortedColumns) {
@@ -56,13 +55,4 @@ export function sortObject(obj: Record<string, any>) {
   }
 
   return sortedObj
-}
-
-const patches = readJsonSync(dataPath('xivapi/patchlist.json'))
-export function applyPatchData(obj: Record<string, any>) {
-  const id = obj.Patch
-  if (!id) return
-
-  const patch = patches.find((item: any) => item.ID === id)
-  obj.GamePatch = patch || null
 }

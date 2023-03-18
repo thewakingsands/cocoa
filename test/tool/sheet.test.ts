@@ -1,4 +1,4 @@
-import { getSheet } from '../../tools/lib/sheet'
+import { getSheet } from '../../tools/lib/sheet/reader'
 
 describe('test/tool/sheet.test.ts', () => {
   it('should read row with transient', async () => {

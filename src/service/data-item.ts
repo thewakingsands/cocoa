@@ -84,15 +84,21 @@ export class DataItemService {
 
     for (let i = 0; i < tasks.length; ++i) {
       const link = tasks[i]
-      const obj = apply(data, link.path, link.target, link.id, values[i] ?? null)
+      const value = values[i] ?? null
+      apply(data, link.path, link.target, link.id, value)
+
+      // ignore self link
+      if (def === link.target) {
+        continue
+      }
 
       const taskSubLinks = subLinks[i]
-      if (taskSubLinks) {
+      if (value && taskSubLinks) {
         for (const link of taskSubLinks) {
           if (link.null) {
-            apply(obj, link.path, link.target, link.id, null)
+            apply(value, link.path, link.target, link.id, null)
           } else {
-            apply(obj, link.path, link.target, link.id, {
+            apply(value, link.path, link.target, link.id, {
               ID: link.id,
             })
           }

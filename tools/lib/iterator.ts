@@ -1,6 +1,6 @@
 import { MultiBar } from 'cli-progress'
 import { readJson } from 'fs-extra'
-import { dataPath } from '../lib/path'
+import { dataPath } from './common/path'
 
 const listCache = Symbol('def-list')
 export async function loadDefinitionList(): Promise<string[]> {
@@ -10,7 +10,7 @@ export async function loadDefinitionList(): Promise<string[]> {
   }
 
   const list: string[] = await readJson(dataPath('definitions/_list.json'))
-    ; (global as any)[listCache] = list
+  ;(global as any)[listCache] = list
 
   return list
 }
@@ -20,7 +20,7 @@ export type GameDataHandler<T = void> = (def: string, id: string) => Promise<T>
 export async function iterateDefinitions(multibar: MultiBar, title: string, handler: DefinitionHandler) {
   const list = await loadDefinitionList()
   const bar = multibar.create(list.length, 0, {
-    label: title
+    label: title,
   })
 
   for (const name of list) {

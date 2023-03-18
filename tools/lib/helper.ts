@@ -1,9 +1,9 @@
-import { COLUMN_NAMES } from './constant'
+import { COLUMN_NAMES } from './common/constant'
 
 /**
  * Gets the real path to an image
  */
-export function getImagePath(number: string, hd = false) {
+export function getImagePath(number: string | number, hd = false) {
   if (!number || number === '0') return ''
 
   const icon = number.toString().padStart(6, '0')

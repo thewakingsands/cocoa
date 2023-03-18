@@ -1,10 +1,10 @@
 import { MultiBar, Presets } from 'cli-progress'
 import { readJson } from 'fs-extra'
-import { dataPath } from '../lib/path'
+import { dataPath } from '../lib/common/path'
 import Redis from 'ioredis'
 import { Definition } from '../lib/interface'
-import { getSheet } from '../lib/sheet'
-import { ZERO_CONTENT } from '../lib/constant'
+import { getSheet } from '../lib/sheet/reader'
+import { ZERO_CONTENT } from '../lib/common/constant'
 import { buildContent } from '../lib/builder'
 import { keys } from '../../src/utils/key'
 import { iterateDefinitions, loadDefinitionList } from '../lib/iterator'
@@ -69,7 +69,7 @@ export async function initialScan(redis: Redis, force = false) {
 
     try {
       const sheet = await getSheet(definition.sheet)
-      for await (const { stringColumns, total, current, row } of sheet.iterator()) {
+      for await (const { stringColumns, total, current, row } of sheet.iterator(true)) {
         // set total at first record
         if (current === 0) {
           bar.setTotal(total!)
@@ -77,7 +77,7 @@ export async function initialScan(redis: Redis, force = false) {
 
         bar.increment()
 
-        const id: number = +row.ID
+        const id: number = +row.ID!
         // skip 'zero' row if not specified
         if (id === 0 && !ZERO_CONTENT.includes(name)) {
           continue

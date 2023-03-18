@@ -1,6 +1,6 @@
 import Container from 'typedi'
 import { DataItemService } from '../../src/service/data-item'
-import { item12345 } from './fixtures/item-12345'
+import { getXivapiData } from './fixtures/provider'
 
 const query = (val: Record<string, string> = {}): any => ({ query: val })
 const columns = (val: string) => query({ columns: val })
@@ -9,6 +9,7 @@ describe('test/service/data-item.test.ts', () => {
   const service = Container.get(DataItemService)
 
   it('should return item', async () => {
+    const item12345 = await getXivapiData('Item', '12345')
     await expect(service.handler('Item', '12345', query())).resolves.toMatchObject(item12345)
   })
 

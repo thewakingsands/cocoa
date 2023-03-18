@@ -1,9 +1,12 @@
-import { getRealColumnName } from "./helper";
-import { Data, Definition } from "./interface";
-import { isLinkInvalid, Link } from "./link";
+import { getRealColumnName } from './helper'
+import { Data, Definition, Row } from './interface'
+import { isLinkInvalid, Link } from './link'
 
-export function buildContent(definition: Definition, data: Record<string, any>): {
-  links: Link[],
+export function buildContent(
+  definition: Definition,
+  data: Row,
+): {
+  links: Link[]
   data: any
 } {
   const sheet = definition.sheet
@@ -42,7 +45,7 @@ export function buildContent(definition: Definition, data: Record<string, any>):
           key,
           target: converter.target,
           id: data[key] ?? null,
-          force: true
+          force: true,
         })
       }
 
@@ -50,10 +53,10 @@ export function buildContent(definition: Definition, data: Record<string, any>):
       if (converter.type === 'multiref') {
         // We don't have to link for TopicSelect because it'll break data
         if (sheet === 'TopicSelect') {
-          return;
+          return
         }
 
-        const linkId = data[key] ?? null;
+        const linkId = data[key] ?? null
         for (const linkTarget of converter.targets) {
           const link = {
             key,
@@ -73,10 +76,10 @@ export function buildContent(definition: Definition, data: Record<string, any>):
       // handle complexlink type definition
       if (converter.type === 'complexlink') {
         // id of linked data
-        const linkId = data[key] ?? null;
+        const linkId = data[key] ?? null
 
         // possible targets
-        const link = converter.links.find(item => {
+        const link = converter.links.find((item) => {
           if (!item.sheet) {
             return false
           }
@@ -98,7 +101,7 @@ export function buildContent(definition: Definition, data: Record<string, any>):
             key,
             target: link.sheet!,
             id: linkId,
-            force: true
+            force: true,
           })
         }
       }
@@ -113,6 +116,6 @@ export function buildContent(definition: Definition, data: Record<string, any>):
 
   return {
     links,
-    data
+    data,
   }
 }

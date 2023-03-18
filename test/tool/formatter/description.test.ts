@@ -1,5 +1,5 @@
 /* eslint-disable no-irregular-whitespace */
-import { formatDescription, formatDescriptionLogic } from '../../../tools/lib/formatter/description'
+import { formatDescription, formatDescriptionLogic } from '../../../tools/lib/sheet/formatter/description'
 
 const case9 = `对目标发动物理攻击　<UIForeground>F201F8</UIForeground><UIGlow>F201F9</UIGlow>威力：<UIGlow>01</UIGlow><UIForeground>01</UIForeground><If(Equal(PlayerParameter(68),19))><If(GreaterThanOrEqualTo(PlayerParameter(72),84))>200<Else/>150</If><Else/>150</If>`
 const case291 = `感知自己附近能够进行采集的最高级矿脉及石场，导向地图上也会显示出来
@@ -7,7 +7,7 @@ const case291 = `感知自己附近能够进行采集的最高级矿脉及石场
 <UIForeground>F201F8</UIForeground><UIGlow>F201F9</UIGlow>持续时间：<UIGlow>01</UIGlow><UIForeground>01</UIForeground>15秒`
 const case292 = `令风之碎晶<If(GreaterThanOrEqualTo(PlayerParameter(68),16))><If(GreaterThanOrEqualTo(PlayerParameter(69),50))>、风之水晶、风之晶簇<Else/><If(GreaterThanOrEqualTo(PlayerParameter(69),41))>、风之水晶<Else/></If></If><Else/></If>的获得数增加2个`
 
-describe('test/tool/description.test.ts', () => {
+describe('test/tool/formatter/description.test.ts', () => {
   it('should format to text', () => {
     expect(formatDescription(case9, true)).toEqual('对目标发动物理攻击　<span style="color:#52a05f;">威力：</span>200')
     expect(formatDescription(case291, true)).toEqual(

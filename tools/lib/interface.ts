@@ -1,3 +1,5 @@
+export type AnyValue = string | number | boolean | null | undefined | any[] | Record<string, any>
+export type Row = Record<string, AnyValue>
 
 export interface ConverterBase {
   type: string
@@ -36,11 +38,12 @@ export interface ComplexLinkConverter {
     sheets?: string[]
     project?: string
     key?: string
-    when?: { key: string, value: string | number }
+    when?: { key: string; value: string | number }
   }>
 }
 
-export type Converter = ColorConverter
+export type Converter =
+  | ColorConverter
   | GenericReferenceConverter
   | IconConverter
   | MultiReferenceConverter
