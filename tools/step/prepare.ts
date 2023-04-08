@@ -1,8 +1,8 @@
 import { basename, join } from 'path'
 import { writeFile, ensureDir, remove } from 'fs-extra'
-import { githubDirectory, githubClone } from './lib/prepare/github'
+import { githubDirectory, githubClone } from '../lib/prepare/github'
 import { existsSync } from 'fs'
-import { dataPath } from './lib/common/path'
+import { dataPath } from '../lib/common/path'
 
 async function prepareDataDir(dir: string, clear = true) {
   const root = dataPath(dir)

@@ -1,14 +1,10 @@
 import { parse as parseSync } from 'csv-parse/sync'
 import { readFileSync } from 'fs-extra'
 import { getRealColumnNames } from '../../helper'
-import { dataPath } from '../../common/path'
 import { rowIndexes } from './common'
 import { Row } from '../../interface'
-import { formatSheetRow } from './util'
-
-function csvPath(filename: string, lang = '') {
-  return dataPath(`datamining/${filename}${lang ? '.' : ''}${lang}.csv`)
-}
+import { csvPath, formatSheetRow, isMultiLanguage } from './util'
+import { MAIN_LANGUAGE } from '../../common/constant'
 
 function readCsvSync(filename: string, lang = ''): string[][] {
   const input = readFileSync(csvPath(filename, lang), 'utf-8')
@@ -19,6 +15,10 @@ function readCsvSync(filename: string, lang = ''): string[][] {
 }
 
 export function* simpleReadSheet(name: string, lang = '') {
+  if (!lang && isMultiLanguage(name)) {
+    lang = MAIN_LANGUAGE
+  }
+
   const sheet = readCsvSync(name, lang)
   const columns = getRealColumnNames(name, sheet[rowIndexes.name])
   const types = sheet[rowIndexes.type]

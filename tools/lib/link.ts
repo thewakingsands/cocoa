@@ -7,11 +7,6 @@ export interface Link {
   force?: boolean
 }
 
-export interface ResolvedLink extends Omit<Link, 'key' | 'force'> {
-  path: string[]
-  null?: boolean
-}
-
 export const isSelfLink = (sheet: string, id: string | number, link: Link) => {
   return sheet === link.target && id === link.id
 }

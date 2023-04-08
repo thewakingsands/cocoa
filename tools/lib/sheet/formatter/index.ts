@@ -1,9 +1,11 @@
+import { definitionFormatter } from './definition'
 import { descriptionFormatter } from './description'
 import { iconFormatter } from './icon'
 import { patchFormatter } from './patch'
 import { placeNameFormatter } from './placename'
 
 export const formatters = [
+  definitionFormatter,
   descriptionFormatter,
   iconFormatter,
   patchFormatter,

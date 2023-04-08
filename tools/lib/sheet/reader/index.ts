@@ -1,19 +1,14 @@
 import { parse } from 'csv-parse'
-import { existsSync, readFile } from 'fs-extra'
+import { readFile } from 'fs-extra'
 import { getRealColumnNames } from '../../helper'
 import { MAIN_LANGUAGE, TRANSIENT_TABLES } from '../../common/constant'
-import { dataPath } from '../../common/path'
-import { formatSheetRow, sortObject } from './util'
+import { csvPath, formatSheetRow, isMultiLanguage, sortObject } from './util'
 import { rowIndexes, subLanguages } from './common'
 import { simpleReadSheet } from './simple'
 import { SheetFormatter } from '../formatter/interface'
 import { formatters } from '../formatter'
 import { Extended } from '../helper/extended'
 import { Row } from '../../interface'
-
-function csvPath(filename: string, lang = '') {
-  return dataPath(`datamining/${filename}${lang ? '.' : ''}${lang}.csv`)
-}
 
 export class Sheet {
   private multiLanguage: boolean
@@ -25,7 +20,7 @@ export class Sheet {
   private formatter: SheetFormatter[] = []
 
   public constructor(private name: string) {
-    this.multiLanguage = existsSync(csvPath(this.name, MAIN_LANGUAGE))
+    this.multiLanguage = isMultiLanguage(this.name)
     this.mainSheetPath = csvPath(this.name, this.multiLanguage ? MAIN_LANGUAGE : undefined)
 
     for (const factory of formatters) {

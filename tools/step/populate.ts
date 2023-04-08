@@ -1,10 +1,11 @@
 import { MultiBar, Presets } from 'cli-progress'
 import Redis from 'ioredis'
-import LRUCache from 'lru-cache'
-import { isLinkInvalid, Link, ResolvedLink } from '../lib/link'
+import { Link } from '../lib/link'
 import { keys } from '../../src/utils/key'
 import { iterateDefinitions } from '../lib/iterator'
 import { handleID } from '../lib/helper'
+import { readIdList } from '../lib/pre-scan/id-list'
+import { tryParseJson } from '../../src/utils/json'
 
 export async function populate(redis: Redis, force = false) {
   // init progress bar
@@ -17,85 +18,12 @@ export async function populate(redis: Redis, force = false) {
     Presets.shades_grey,
   )
 
-  // id list & link list
-  const idListMap: Map<string, Set<string>> = new Map()
-  const linkCache: LRUCache<string, Link[] | null> = new LRUCache({
-    maxSize: 128 * 1024 * 1024,
-    sizeCalculation: (a) => JSON.stringify(a).length,
-  })
-
-  const getLink = async (def: string, id: string | number): Promise<Link[] | null> => {
-    const key = keys.tempDirectLink(def, id)
-    const cached = linkCache.get(key)
-    if (cached !== undefined) {
-      return cached
-    }
-
-    const text = await redis.get(key)
-    if (text) {
-      try {
-        const data = JSON.parse(text)
-        linkCache.set(key, data)
-        return data
-      } catch (e) {
-        /* noop */
-      }
-    }
-
-    linkCache.set(key, null)
-    return null
-  }
-
   let pipeline = redis.pipeline()
   const flush = async () => {
     if (pipeline.length === 0) return
     await pipeline.exec()
 
     pipeline = redis.pipeline()
-  }
-
-  const populateDepth = 1
-  /**
-   * @param path Key path
-   * @param resolved Output Array
-   * @param def Definition Name
-   * @param id Row ID
-   * @returns Whether (def, id) is a valid row
-   */
-  const populateLink = async (path: string[], resolved: ResolvedLink[], def: string, id: string | number) => {
-    const links = await getLink(def, id)
-    if (!links) return false
-
-    const depth = path.length
-    if (depth < populateDepth) {
-      const isRoot = depth === 0
-      for (const link of links) {
-        const linkPath = [...path, link.key]
-        const valid = !isLinkInvalid(def, id, link) && (await populateLink(linkPath, resolved, link.target, link.id!))
-
-        if (valid || link.force) {
-          resolved.push({
-            path: linkPath,
-            target: link.target,
-            id: link.id,
-            null: !valid,
-          })
-        }
-
-        // record reverse link
-        if (valid && isRoot) {
-          const key = keys.tempReverseLink(link.target, link.id!)
-          const rev: Link = {
-            key: link.key,
-            target: def,
-            id,
-          }
-          pipeline.lpush(key, JSON.stringify(rev))
-        }
-      }
-    }
-
-    return true
   }
 
   async function iterateGameData(
@@ -115,13 +43,13 @@ export async function populate(redis: Redis, force = false) {
         return
       }
 
-      const ids = idListMap.get(name)
+      const ids = readIdList(name)
       if (!ids) {
         multibar.log(`Error[${name}]: Missing list\n`)
         return
       }
 
-      const bar = multibar.create(ids.size, 0, {
+      const bar = multibar.create(ids.length, 0, {
         label: `=> ${name}`,
       })
 
@@ -142,12 +70,6 @@ export async function populate(redis: Redis, force = false) {
     })
   }
 
-  // load id lists
-  await iterateDefinitions(multibar, 'Loading list', async (name) => {
-    const list = await redis.lrange(keys.list(name), 0, -1)
-    idListMap.set(name, new Set(list))
-  })
-
   // clear reverse link
   await iterateGameData('Clearing reverse link data', {
     async handler(name, id) {
@@ -159,7 +81,7 @@ export async function populate(redis: Redis, force = false) {
   })
 
   // populating
-  await iterateGameData('Populating', {
+  await iterateGameData('Generating reverse link data', {
     async pre(name) {
       const finishKey = keys.populated(name)
       if (!force && (await redis.get(finishKey))) {
@@ -169,10 +91,23 @@ export async function populate(redis: Redis, force = false) {
       return true
     },
     async handler(name, id) {
-      const resolved: ResolvedLink[] = []
-      await populateLink([], resolved, name, id)
+      const key = keys.fullLink(name, id)
+      const links = tryParseJson<Link[]>(await redis.get(key))
 
-      pipeline.set(keys.fullLink(name, id), JSON.stringify(resolved))
+      if (!links) {
+        return
+      }
+
+      // record reverse link
+      for (const link of links) {
+        const key = keys.tempReverseLink(link.target, link.id!)
+        const rev: Link = {
+          key: link.key,
+          target: name,
+          id,
+        }
+        pipeline.lpush(key, JSON.stringify(rev))
+      }
 
       if (pipeline.length > 500) {
         await flush()

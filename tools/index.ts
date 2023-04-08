@@ -1,10 +1,11 @@
 import 'dotenv/config'
 import { initialScan } from './step/scan'
-import { checkDatamining, getPatchData, getSaintCoinachDefinitions, getXivapiCom } from './prepare'
+import { checkDatamining, getPatchData, getSaintCoinachDefinitions, getXivapiCom } from './step/prepare'
 
 import Redis from 'ioredis'
 import { config } from '../src/config/redis'
 import { populate } from './step/populate'
+import { preScan } from './step/pre-scan'
 
 const force = process.argv.includes('-f')
 console.log('force', force)
@@ -15,6 +16,11 @@ const tasks = {
     await getPatchData()
     await getXivapiCom()
     await checkDatamining()
+    await tasks.preScan()
+  },
+
+  async preScan() {
+    await preScan(force)
   },
 
   async scan() {

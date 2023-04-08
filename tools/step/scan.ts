@@ -5,10 +5,9 @@ import Redis from 'ioredis'
 import { Definition } from '../lib/interface'
 import { getSheet } from '../lib/sheet/reader'
 import { ZERO_CONTENT } from '../lib/common/constant'
-import { buildContent } from '../lib/builder'
 import { keys } from '../../src/utils/key'
 import { iterateDefinitions, loadDefinitionList } from '../lib/iterator'
-import { Link } from '../lib/link'
+import { EXTERNAL, LINKS } from '../lib/sheet/formatter/definition'
 
 async function readDefinition(name: string): Promise<Definition> {
   return readJson(dataPath(`definitions/${name}.json`))
@@ -17,13 +16,6 @@ async function readDefinition(name: string): Promise<Definition> {
 interface AnalyzeResult {
   strings: string[]
   externals: string[]
-}
-
-function analyzeColumns(links: Link[], stringColumns: string[]): AnalyzeResult {
-  return {
-    strings: stringColumns,
-    externals: links.map((link) => link.key),
-  }
 }
 
 export async function initialScan(redis: Redis, force = false) {
@@ -64,7 +56,7 @@ export async function initialScan(redis: Redis, force = false) {
 
     pipeline.del(listKey)
 
-    let analyzeResult = null
+    let analyzeResult: AnalyzeResult | null = null
     let count = 0
 
     try {
@@ -83,17 +75,20 @@ export async function initialScan(redis: Redis, force = false) {
           continue
         }
 
-        const { links, data } = buildContent(definition, row)
-
         if (analyzeResult === null) {
-          analyzeResult = analyzeColumns(links, stringColumns)
+          analyzeResult = {
+            externals: Array.from(row[EXTERNAL] as Set<string>),
+            strings: stringColumns,
+          }
         }
+
+        const links = row[LINKS]
 
         ++count
         pipeline
           .rpush(listKey, id)
-          .set(keys.data(name, id), JSON.stringify(data))
-          .set(keys.tempDirectLink(name, id), JSON.stringify(links))
+          .set(keys.data(name, id), JSON.stringify(row))
+          .set(keys.fullLink(name, id), JSON.stringify(links))
 
         if (pipeline.length > 500) {
           await flush()

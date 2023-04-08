@@ -1,5 +1,5 @@
 export type AnyValue = string | number | boolean | null | undefined | any[] | Record<string, any>
-export type Row = Record<string, AnyValue>
+export type Row = Record<string | symbol, AnyValue>
 
 export interface ConverterBase {
   type: string

@@ -1,4 +1,6 @@
+import { existsSync } from 'fs-extra'
 import { FOREIGN_REMOVALS, MAIN_LANGUAGE } from '../../common/constant'
+import { dataPath } from '../../common/path'
 import { getImagePath, handleID } from '../../helper'
 import { Row } from '../../interface'
 
@@ -6,6 +8,12 @@ const removalRegex = new RegExp(FOREIGN_REMOVALS.join('|'), 'g')
 function formatString(str: string) {
   return str.replace(/\r/g, '\n').replace(removalRegex, '')
 }
+
+export function csvPath(filename: string, lang = '') {
+  return dataPath(`datamining/${filename}${lang ? '.' : ''}${lang}.csv`)
+}
+
+export const isMultiLanguage = (name: string) => existsSync(csvPath(name, MAIN_LANGUAGE))
 
 export function applySheetColumn(obj: Row, column: string, type: string, value: string) {
   if (!column) return
