@@ -1,8 +1,9 @@
 import { basename, join } from 'path'
-import { writeFile, ensureDir, remove } from 'fs-extra'
+import { writeFile, ensureDir, remove, writeJson } from 'fs-extra'
 import { githubDirectory, githubClone } from '../lib/prepare/github'
 import { existsSync } from 'fs'
 import { dataPath } from '../lib/common/path'
+import fetch from 'node-fetch'
 
 async function prepareDataDir(dir: string, clear = true) {
   const root = dataPath(dir)
@@ -65,4 +66,12 @@ export async function checkDatamining() {
       throw new Error(`'${testPath}' does not exists`)
     }
   }
+}
+
+export async function downloadServerList() {
+  const root = await prepareDataDir('server-list')
+  const res = await fetch('https://zhyupe.github.io/ffxiv-datamining-worker/server.json')
+  const data = await res.json()
+
+  await writeJson(join(root, 'cn.json'), data, { spaces: 2 })
 }

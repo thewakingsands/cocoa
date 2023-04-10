@@ -1,6 +1,12 @@
 import 'dotenv/config'
 import { initialScan } from './step/scan'
-import { checkDatamining, getPatchData, getSaintCoinachDefinitions, getXivapiCom } from './step/prepare'
+import {
+  checkDatamining,
+  downloadServerList,
+  getPatchData,
+  getSaintCoinachDefinitions,
+  getXivapiCom,
+} from './step/prepare'
 
 import Redis from 'ioredis'
 import { config } from '../src/config/redis'
@@ -16,6 +22,7 @@ const tasks = {
     await getPatchData()
     await getXivapiCom()
     await checkDatamining()
+    await downloadServerList()
     await tasks.preScan()
   },
 

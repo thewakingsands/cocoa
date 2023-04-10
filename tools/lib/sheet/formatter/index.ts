@@ -1,29 +1,40 @@
+import { craftLeveFormatter } from './craft-leve'
 import { definitionFormatter } from './definition'
 import { descriptionFormatter } from './description'
 import { iconFormatter } from './icon'
+import { itemFormatter } from './item'
+import { leveFormatter } from './leve'
+import { materiaFormatter } from './materia'
+import { orchestrionFormatter } from './orchestrion'
 import { patchFormatter } from './patch'
 import { placeNameFormatter } from './placename'
+import { stainFormatter } from './stain'
+import { worldFormatter } from './world'
+// import { achievementFormatter } from './achievement'
+// import { instanceContentFormatter } from './instance-content'
 
 export const formatters = [
   definitionFormatter,
+
+  // SaintCoinachRedisCustomCommand
   descriptionFormatter,
   iconFormatter,
   patchFormatter,
   // php /vagrant/bin/console SaintCoinachRedisCustomCommand Quest
   // php /vagrant/bin/console SaintCoinachRedisCustomCommand Recipe
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand Achievement
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand InstanceContent
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand Item
+  // achievementFormatter,
+  // instanceContentFormatter,
+  itemFormatter,
   // php /vagrant/bin/console SaintCoinachRedisCustomCommand ItemAction
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand LogMessage
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand Materia
+  materiaFormatter,
   // php /vagrant/bin/console SaintCoinachRedisCustomCommand NPC
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand Orchestrion
+  orchestrionFormatter,
   placeNameFormatter,
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand Servers
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand Stain
+  worldFormatter,
+  stainFormatter,
+  // I don't know what this does
   // php /vagrant/bin/console SaintCoinachRedisCustomCommand Characters
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand CraftLeve
-  // php /vagrant/bin/console SaintCoinachRedisCustomCommand Leve
+  craftLeveFormatter,
+  leveFormatter,
   // php /vagrant/bin/console SaintCoinachRedisCustomCommand Links
 ]
